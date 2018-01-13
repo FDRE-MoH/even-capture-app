@@ -390,7 +390,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                 filterWithRange: true,
                 compulsory: false,
                 showFilter: false,
-                show: getShowStatus(true, 'lastUpdated'),
+                show: getShowStatus(false, 'lastUpdated'),
                 group: 'FIXED'
             });
 

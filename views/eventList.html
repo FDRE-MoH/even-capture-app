@@ -1,4 +1,4 @@
-<div ng-if="selectedProgramStage && !eventRegistration && !editingEventInFull" class="small-vertical-spacing">
+<div ng-if="selectedProgramStage" class="small-vertical-spacing">
     <i ng-if="!eventFetched && selectedOptions.length === selectedCategories.length && optionsReady" class="fa fa-spinner fa-spin fa-2x"></i>    
     <div ng-if="eventFetched" ng-switch="dhis2Events.length">                        
         <div ng-switch-when="undefined">
@@ -40,6 +40,9 @@
                     </span>                        
                     <label class="btn btn-default" ng-if="editingEventInGrid" ng-click="showEventList()" title="{{'close_editing'| translate}}">
                         <i class="fa fa-times-circle label-font"></i>
+                    </label>
+                    <label class="btn btn-success" ng-if="eventRegistration" ng-click="addEvent()" title="{{'save'| translate}}">
+                        <i class="fa fa-floppy-o label-font"></i>
                     </label>
                 </span>
             </div>
@@ -155,6 +158,11 @@
                             </tr>                        
                         </thead>
                         <tbody id="list">
+                            <tr ng-if="eventRegistration">
+                                <td ng-repeat="eventGridColumn in eventGridColumns | filter: {show: true}">                                    
+                                    <div ng-include="'views/gridForm.html'"></div>
+                                </td>
+                            </tr>
                             <tr title="{{'click_for_action' | translate}}" ng-repeat="dhis2Event in dhis2Events">
                                 <!-- Visible when event is not under editing -->
                                 <td ng-if="(currentEvent.event !== dhis2Event.event) && (eventGridColumn.id !== 'comment')"  class="no-padding"

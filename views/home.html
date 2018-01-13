@@ -97,7 +97,7 @@
                 <div class="div-bottom">
                     <button class="btn btn-success hideInPrint small-horizontal-spacing small-vertical-spacing"
                             type="button"
-                            ng-show="selectedProgramStage" 
+                            ng-show="selectedProgramStage && !editingEventInFull && !eventRegistration" 
                             ng-click="showEventRegistration()" 
                             ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid || !userAuthority.canAddOrUpdateEvent">
                         {{'register_event'| translate}}
@@ -124,7 +124,7 @@
 
         <!-- Linelisting begins -->
         <form name="outerForm" novalidate>
-            <div ng-include="'views/lineListingForm.html'"></div>
+            <div ng-include="'views/lineListing.html'"></div>
         </form>
         <!-- Linelisting ends -->
 
