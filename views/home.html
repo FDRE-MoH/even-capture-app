@@ -102,6 +102,13 @@
                             ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid || !userAuthority.canAddOrUpdateEvent">
                         {{'register_event'| translate}}
                     </button>
+                    <button class="btn btn-warning hideInPrint small-horizontal-spacing small-vertical-spacing"
+                            type="button"
+                            ng-show="editingEventInFull || eventRegistration" 
+                            ng-click="cancel()" 
+                            ng-disabled="model.savingRegistration">
+                        {{'cancel'| translate}}
+                    </button>
                     <button class="btn btn-primary hideInPrint small-horizontal-spacing small-vertical-spacing"
                             type="button" 
                             ng-if="dhis2Events.length > 0 || eventRegistration || editingEventInFull"
@@ -115,12 +122,18 @@
         </div>        
         <!-- selection ends -->        
 
+        <!-- Linelisting begins -->
+        <form name="outerForm" novalidate>
+            <div ng-include="'views/lineListingForm.html'"></div>
+        </form>
+        <!-- Linelisting ends -->
+
         <!-- event grid begins -->
         <div ng-include="'views/eventList.html'"></div>
         <!-- event grid ends -->
 
         <!-- event update in full / registration begins-->
-        <form name="outerForm" novalidate>
+        <!--<form name="outerForm" novalidate>
             <div ng-if="editingEventInFull || eventRegistration">
                 <h3>
                     <span ng-if="editingEventInFull">{{'event_details'| translate}}</span>
@@ -165,7 +178,7 @@
                     </div>                    
                 </div>
             </div>
-        </form>
+        </form>-->
         <!-- event update / registration ends -->
         
     </div>    

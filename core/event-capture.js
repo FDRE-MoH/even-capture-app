@@ -323,7 +323,7 @@ function getBatchPrograms( programs, batch )
     $.ajax( {
         url: DHIS2URL + '/programs.json',
         type: 'GET',
-        data: 'fields=*,categoryCombo[id,displayName,isDefault,categories[id,displayName,categoryOptions[id,displayName]]],organisationUnits[id,displayName],programStages[*,dataEntryForm[*],programStageSections[id,displayName,sortOrder,dataElements[id]],programStageDataElements[*,dataElement[*,optionSet[id]]]]&paging=false&filter=id:in:' + ids
+        data: 'fields=*,attributeValues[value,attribute[id,name,valueType,code]],categoryCombo[id,displayName,isDefault,categories[id,displayName,categoryOptions[id,displayName]]],organisationUnits[id,displayName],programStages[*,dataEntryForm[*],programStageSections[id,displayName,sortOrder,dataElements[id]],programStageDataElements[*,dataElement[*,optionSet[id]]]]&paging=false&filter=id:in:' + ids
     }).done( function( response ){
 
         if(response.programs){
@@ -333,6 +333,8 @@ function getBatchPrograms( programs, batch )
                     ou[o.id] = o.displayName;
                 });
                 program.organisationUnits = ou;
+
+                program = dhis2.metadata.processMetaDataAttribute( program )
 
                 dhis2.ec.store.set( 'programs', program );
             });
