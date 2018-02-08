@@ -1,6 +1,8 @@
 // Tracker core
-import 'd2-tracker/lib/dhis2.angular.services.js';
-import 'd2-tracker/lib/dhis2.angular.directives.js';
+//import 'd2-tracker/lib/dhis2.angular.services.js';
+//import 'd2-tracker/lib/dhis2.angular.directives.js';
+import './dhis2.angular.services.js';
+import './dhis2.angular.directives.js';
 import 'd2-tracker/lib/dhis2.angular.validations.js';
 import 'd2-tracker/lib/dhis2.angular.filters.js';
 import 'd2-tracker/lib/dhis2.angular.controllers.js';

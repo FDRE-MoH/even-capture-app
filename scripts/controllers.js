@@ -377,7 +377,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                 id: 'eventDate',
                 valueType: 'DATE',
                 filterWithRange: true,
-                compulsory: false,
+                compulsory: true,
                 showFilter: false,
                 show: getShowStatus(true, 'eventDate'),
                 group: 'FIXED'
@@ -460,7 +460,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                 var showStatus = defaultShowStatus;
 
                 savedColumn = $filter('filter')($scope.savedGridColumns, {id: id}, true);
-                if (savedColumn.length > 0) {
+                if (savedColumn.length > 0 && id !== 'lastUpdated') {
                     showStatus = savedColumn[0].show;
                 }
                 return showStatus;
