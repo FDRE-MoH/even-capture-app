@@ -3,6 +3,9 @@ node_modules/
 lib/
 npm-debug.log
 .idea
+*.classpath
+*.project
+.settings
 *.gzip
 build/
 target/
