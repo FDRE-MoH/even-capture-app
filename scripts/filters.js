@@ -10,7 +10,6 @@ var eventCaptureFilters = angular.module('eventCaptureFilters', [])
         if( diseaseList && diseaseList.length && diseaseList.length > 0 && excludeList && excludeList.length && excludeList.length > 0){
             angular.forEach(diseaseList, function(d){
                 if( excludeList.indexOf(d.displayName) === -1 ){
-                    console.log(excludeList, ' - ', d.displayName);
                     _diseaseList.push(d);
                 }
             });
