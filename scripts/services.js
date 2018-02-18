@@ -113,7 +113,104 @@ var eventCaptureServices = angular.module('eventCaptureServices', ['ngResource']
                 }
             }            
             return key;
+        },
+        getByCode: function(options, key){
+            if(options){
+                for(var i=0; i<options.length; i++){
+                    if( key === options[i].code){
+                        return options[i];
+                    }
+                }
+            }            
+            return null;
+        },        
+        getByName: function(options, key){
+            if(options){
+                for(var i=0; i<options.length; i++){                    
+                    if( key === options[i].displayName){
+                        return options[i];
+                    }
+                }
+            }            
+            return null;
         }
+    };
+})
+
+/* Fetch periods */
+.service('PeriodService', function(CalendarService, DateUtils){
+    
+    var mappedMonthNames = {
+		ethiopian: ['Meskerem', 'Tikemet', 'Hidar', 'Tahesas', 'Tir', 'Yekatit', 'Megabit', 'Miazia', 'Genbot', 'Sene', 'Hamle', 'Nehase'],
+		gregorian: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    };
+
+    this.getPeriods = function( opts ){
+        var availablePeriods = [];
+        if(!opts.periodType){
+            return availablePeriods;
+        }
+        
+        if( opts.dataSetType !== 'Plan_Setting' ){
+            opts.futurePeriods = 1;
+        }
+        
+        var calendarSetting = CalendarService.getSetting();
+        
+        dhis2.period.format = calendarSetting.keyDateFormat;
+        
+        dhis2.period.calendar = $.calendars.instance( calendarSetting.keyCalendar );
+                
+        dhis2.period.generator = new dhis2.period.PeriodGenerator( dhis2.period.calendar, dhis2.period.format );
+        
+        dhis2.period.picker = new dhis2.period.DatePicker( dhis2.period.calendar, dhis2.period.format );
+        
+        var d2Periods = dhis2.period.generator.generateReversedPeriods( opts.periodType, opts.periodOffset );
+                
+        d2Periods = dhis2.period.generator.filterOpenPeriods( opts.periodType, d2Periods, opts.futurePeriods, null, null );
+        
+        var today = moment(DateUtils.getToday(),'YYYY-MM-DD');
+        
+        if( opts.dataSetType === 'Plan_Setting' ) {
+        	angular.forEach(d2Periods, function(p){
+	            p.id = p.iso;
+	            var st = p.endDate.split('-');
+	            st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
+	            if( st[1] < 10 ){
+	                st[1] = '0' + st[1];
+	            }
+	            p.endDate = st.join('-');
+	            
+	            st = p.startDate.split('-');
+	            st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
+	            if( st[1] < 10 ){
+	                st[1] = '0' + st[1];
+	            }
+	            p.startDate = st.join('-');
+	        });
+        }
+        else {
+        	d2Periods = d2Periods.filter(function(p) {
+                p.id = p.iso;
+                var st = p.endDate.split('-');
+                st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
+                if( st[1] < 10 ){
+                    st[1] = '0' + st[1];
+                }
+                p.endDate = st.join('-');
+                
+                st = p.startDate.split('-');
+                st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
+                if( st[1] < 10 ){
+                    st[1] = '0' + st[1];
+                }
+                p.startDate = st.join('-');
+                
+                return today.diff(p.endDate, 'days') >= -9;
+            });        	
+        }        
+        
+        return d2Periods;
     };
 })
 

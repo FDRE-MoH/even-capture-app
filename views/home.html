@@ -3,40 +3,39 @@
 </span>
 
 <div id="leftBar">
-    
+
     <d2-left-bar></d2-left-bar>
-    
+
     <div id="orgUnitTree">
         <ul>
         </ul>
     </div>
-    
-    <img id="ouwt_loader" src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}"/>
-    
+
+    <img id="ouwt_loader" src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}" />
+
     <div class="small-horizontal-spacing" ng-if="!treeLoaded">
         {{'loading_tree'| translate}}
     </div>
-    
+
 </div>
 
 
 <div class="page" id="mainPage">
-    
+
     <div ng-if="!selectedOrgUnit">
-        <img src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}" ng-if="!selectedOrgUnit"/><br>
-        {{'loading_metadata'| translate}}
+        <img src="../images/ajax-loader-bar.gif" alt="{{'in_progress'| translate}}" ng-if="!selectedOrgUnit" /><br> {{'loading_metadata'| translate}}
     </div>
 
     <div ng-if="selectedOrgUnit && !userAuthority.canAddOrUpdateEvent">
         <h1>{{'lacking_required_authority_to_add_update_event' | translate}}</h1>
     </div>
-    
+
     <div ng-show="selectedOrgUnit">
-        
+
         <h3>
             {{eventCaptureLabel}}
         </h3>
-        
+
         <!-- selection begins-->
         <div class="row selectionGroup">
             <div class="col-sm-6 selectionArea">
@@ -45,8 +44,7 @@
                         {{registeringUnitLabel}}
                     </div>
                     <div class="col-sm-8">
-                        <input type="text" class="form-control" selected-org-unit ng-model="selectedOrgUnit.displayName"
-                               value="{{selectedOrgUnit.displayName|| pleaseSelectLabel}}" disabled="">
+                        <input type="text" class="form-control" selected-org-unit ng-model="selectedOrgUnit.displayName" value="{{selectedOrgUnit.displayName|| pleaseSelectLabel}}" disabled="">
                     </div>
                 </div>
                 <div class="row small-vertical-spacing">
@@ -54,15 +52,32 @@
                         {{programLabel}}
                     </div>
                     <div class="col-sm-8">
-                        <select id="programId" 
-                                class="form-control"
-                                name="programId" 
-                                ng-model="selectedProgram" 
-                                ng-options="program as program.displayName for program in programs | orderBy: 'name'" 
-                                ng-change="getProgramDetails()"
-                                ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid">
-                            <option value="">{{pleaseSelectLabel}}</option>
-                        </select>
+                        <ui-select ng-model="selectedProgram" 
+                            on-select="getProgramDetails( selectedProgram )"    
+                            ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid"
+                            theme="select2" 
+                            style="width:100%;">
+                            <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{programs && programs.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                            <ui-select-choices repeat="program in programs | filter: $select.search | limitTo:maxOptionSize">
+                                <span ng-bind-html="program.displayName | highlight: $select.search"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+                <div class="row small-vertical-spacing" ng-if="selectedProgram && selectedProgram.isPeriodic">
+                    <div class="col-sm-4">
+                        {{periodLabel}}
+                    </div>
+                    <div class="col-sm-8">
+                        <ui-select ng-model="model.selectedPeriod" 
+                            ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid"
+                            theme="select2" 
+                            style="width:100%;">
+                            <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{periods && periods.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.name|| $select.selected}}</ui-select-match>
+                            <ui-select-choices repeat="period in periods | filter: $select.search | limitTo:maxOptionSize">
+                                <span ng-bind-html="period.name | highlight: $select.search"></span>
+                            </ui-select-choices>
+                        </ui-select>
                     </div>
                 </div>
                 <div class="row small-vertical-spacing" ng-if="selectedProgram" ng-repeat="category in selectedCategories">
@@ -70,13 +85,16 @@
                         {{category.displayName}}
                     </div>
                     <div class="col-sm-8">
-                        <select class="form-control"
-                                name="option"                             
-                                ng-model="category.selectedOption"
-                                ng-options="option as option.displayName for option in category.categoryOptions"
-                                ng-change="getCategoryOptions()">
-                            <option value="">{{pleaseSelectLabel}}</option>
-                        </select>
+                        <ui-select ng-model="category.selectedOption" 
+                            ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid"                        
+                            theme="select2" 
+                            on-select="getCategoryOptions()" 
+                            style="width:100%;">
+                            <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{category.categoryOptions && category.categoryOptions.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
+                            <ui-select-choices repeat="option in category.categoryOptions | filter: $select.search | limitTo:maxOptionSize">
+                                <span ng-bind-html="option.displayName | highlight: $select.search"></span>
+                            </ui-select-choices>
+                        </ui-select>
                     </div>
                 </div>
                 <div class="row small-vertical-spacing" ng-if="selectedProgramStage && selectedProgramStage.programStageSections.length  && eventRegistration || editingEventInFull">
@@ -84,42 +102,29 @@
                         {{'section'| translate}}
                     </div>
                     <div class="col-sm-8">
-                        <select class="form-control"
-                                name="section"                             
-                                ng-model="selectedSection.id">
+                        <select class="form-control" name="section" ng-model="selectedSection.id">
                             <option value="ALL">{{'show_all'| translate}}</option>
                             <option ng-if="!hiddenSections[section.id]" ng-repeat="section in selectedProgramStage.programStageSections" value={{section.id}}>{{section.displayName}}</option>
                         </select>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 div-bottom-container" ng-if="selectedProgram.categoryCombo.isDefault || !selectedProgram.categoryCombo.isDefault && optionsReady">                
+            <div class="col-sm-6 div-bottom-container" ng-if="registrationReady()">
                 <div class="div-bottom">
-                    <button class="btn btn-success hideInPrint small-horizontal-spacing small-vertical-spacing"
-                            type="button"
-                            ng-show="selectedProgramStage && !editingEventInFull && !eventRegistration" 
-                            ng-click="showEventRegistration()" 
-                            ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid || !userAuthority.canAddOrUpdateEvent">
+                    <button class="btn btn-success hideInPrint small-horizontal-spacing small-vertical-spacing" type="button" ng-show="selectedProgramStage && !editingEventInFull && !eventRegistration" ng-click="showEventRegistration()" ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid || !userAuthority.canAddOrUpdateEvent">
                         {{'register_event'| translate}}
                     </button>
-                    <button class="btn btn-warning hideInPrint small-horizontal-spacing small-vertical-spacing"
-                            type="button"
-                            ng-show="editingEventInFull || eventRegistration" 
-                            ng-click="cancel()" 
-                            ng-disabled="model.savingRegistration">
+                    <button class="btn btn-warning hideInPrint small-horizontal-spacing small-vertical-spacing" type="button" ng-show="editingEventInFull || eventRegistration" ng-click="cancel()" ng-disabled="model.savingRegistration">
                         {{'cancel'| translate}}
                     </button>
-                    <button class="btn btn-primary hideInPrint small-horizontal-spacing small-vertical-spacing"
-                            type="button" 
-                            ng-if="dhis2Events.length > 0 || eventRegistration || editingEventInFull"
-                            onclick="javascript:window.print()">
+                    <button class="btn btn-primary hideInPrint small-horizontal-spacing small-vertical-spacing" type="button" ng-if="dhis2Events.length > 0 || eventRegistration || editingEventInFull" onclick="javascript:window.print()">
                         <span ng-if="!eventRegistration && !editingEventInFull">{{'print_list'| translate}}</span>
                         <span ng-if="eventRegistration">{{'print_form'| translate}}</span>
                         <span ng-if="editingEventInFull">{{'print_details'| translate}}</span>
                     </button>
                 </div>
             </div>
-        </div>        
+        </div>
         <!-- selection ends -->
 
         <!-- event grid begins -->
@@ -176,7 +181,7 @@
             </div>
         </form>-->
         <!-- event update / registration ends -->
-        
-    </div>    
-    
+
+    </div>
+
 </div>

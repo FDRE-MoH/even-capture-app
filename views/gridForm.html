@@ -10,7 +10,7 @@
                         on-select="saveDatavalue()"
                         style="width:100%;">
                 <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{'select_or_search' | translate}}">{{$select.selected.displayName  || $select.selected}}</ui-select-match>
-                <ui-select-choices  repeat="option.displayName as option in optionSets[prStDes[eventGridColumn.id].dataElement.optionSet.id].options | filter: $select.search | limitTo:maxOptionSize">
+                <ui-select-choices  repeat="option.displayName as option in optionSets[prStDes[eventGridColumn.id].dataElement.optionSet.id].options | filter: $select.search | limitTo:maxOptionSize | diseaseListFilter:registeredDiseaseList">
                     <span ng-bind-html="option.displayName | highlight: $select.search"></span>
                 </ui-select-choices>
             </ui-select>

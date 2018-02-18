@@ -323,7 +323,7 @@ function getBatchPrograms( programs, batch )
     $.ajax( {
         url: DHIS2URL + '/programs.json',
         type: 'GET',
-        data: 'fields=*,attributeValues[value,attribute[id,name,valueType,code]],categoryCombo[id,displayName,isDefault,categories[id,displayName,categoryOptions[id,displayName]]],organisationUnits[id,displayName],programStages[*,dataEntryForm[*],programStageSections[id,displayName,sortOrder,dataElements[id]],programStageDataElements[*,dataElement[*,optionSet[id]]]]&paging=false&filter=id:in:' + ids
+        data: 'fields=*,attributeValues[value,attribute[id,name,valueType,code]],categoryCombo[id,displayName,isDefault,categories[id,displayName,categoryOptions[id,displayName]]],organisationUnits[id,displayName],programStages[*,dataEntryForm[*],programStageSections[id,displayName,sortOrder,dataElements[id]],programStageDataElements[*,dataElement[*,attributeValues[value,attribute[id,name,valueType,code]],optionSet[id]]]]&paging=false&filter=id:in:' + ids
     }).done( function( response ){
 
         if(response.programs){
@@ -335,6 +335,14 @@ function getBatchPrograms( programs, batch )
                 program.organisationUnits = ou;
 
                 program = dhis2.metadata.processMetaDataAttribute( program )
+
+                _.each(_.values( program.programStages), function( prs ){
+                    _.each(_.values( prs.programStageDataElements), function( prstde ){
+                        if( prstde.dataElement ){
+                            prstde.dataElement = dhis2.metadata.processMetaDataAttribute( prstde.dataElement )
+                        }
+                    }); 
+                });
 
                 dhis2.ec.store.set( 'programs', program );
             });

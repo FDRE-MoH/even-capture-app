@@ -33,6 +33,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                 AuthorityService,
                 TrackerRulesExecutionService,
                 OrgUnitFactory,
+                PeriodService,
                 OptionSetService) {
     
     $scope.maxOptionSize = 100;
@@ -99,10 +100,19 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                 }
             });
 
+            var opts = {
+                periodType: 'Monthly',
+                periodOffset: 0,
+                futurePeriods: 0
+            };
+            
+            $scope.periods = PeriodService.getPeriods( opts );
+
             $scope.pleaseSelectLabel = $translate.instant('please_select');
             $scope.registeringUnitLabel = $translate.instant('registering_unit');
             $scope.eventCaptureLabel = $translate.instant('event_capture');
             $scope.programLabel = $translate.instant('program');
+            $scope.periodLabel = $translate.instant('period');
             $scope.searchLabel = $translate.instant('search');
             $scope.findLabel = $translate.instant('find');
             $scope.searchOusLabel = $translate.instant('locate_organisation_unit_by_name');
@@ -179,7 +189,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                     $scope.showEventForEditing(eventIdFromUrl);
                 } else {
                     $scope.selectedProgram = response.selectedProgram;
-                    $scope.getProgramDetails();
+                    $scope.getProgramDetails( $scope.selectedProgram );
                 }
             });
         }
@@ -195,7 +205,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                 for (var i = 0; i < $scope.programs.length; i++) {
                     if ($scope.programs[i].id === event.program) {
                         $scope.selectedProgram = $scope.programs[i];
-                        $scope.getProgramDetails();                        
+                        $scope.getProgramDetails( $scope.selectedProgram );
                         if( $scope.selectedProgram.programStages[0].id === event.programStage ){
                             $scope.formatEvent(event);
                             $scope.currentEvent = angular.copy(event);
@@ -326,13 +336,14 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
         }
     };
 
-    $scope.getProgramDetails = function(){
+    $scope.getProgramDetails = function( program ){
+        $scope.selectedProgram = program;
         $rootScope.ruleeffects = {};
         var showStatus, savedColumn;
         $scope.selectedOptions = [];
         $scope.selectedProgramStage = null;
         $scope.eventFetched = false;
-        $scope.optionsReady = false;
+        $scope.diseaseDataElement = null;
         
         //Filtering
         $scope.reverse = true;
@@ -399,10 +410,14 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
 
             angular.forEach($scope.selectedProgramStage.programStageDataElements, function (prStDe) {
 
+                if( prStDe.dataElement && prStDe.dataElement.isDiseaseList ){
+                    $scope.diseaseDataElement = prStDe.dataElement;
+                }
+
                 $scope.prStDes[prStDe.dataElement.id] = prStDe;
                 $scope.newDhis2Event[prStDe.dataElement.id] = '';
 
-                showStatus = getShowStatus(prStDe.displayInReports, prStDe.dataElement.id);
+                showStatus = getShowStatus(prStDe.displayInReports || prStDe.compulsory, prStDe.dataElement.id);
 
                     //generate grid headers using program stage data elements
                     //create a template for new event
@@ -447,14 +462,12 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
             $scope.newDhis2Event.event = 'SINGLE_EVENT';
             $scope.newDhis2Event.orgUnit = $scope.selectedOrgUnit.id;
 
-            $scope.selectedCategories = [];
             if($scope.selectedProgram.categoryCombo && !$scope.selectedProgram.categoryCombo.isDefault && $scope.selectedProgram.categoryCombo.categories){
                 $scope.selectedCategories = $scope.selectedProgram.categoryCombo.categories;
             }
             else{
                 $scope.loadEvents();
             }
-            $scope.optionsReady = true;
 
             function getShowStatus(defaultShowStatus, id) {
                 var showStatus = defaultShowStatus;
@@ -463,9 +476,22 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                 if (savedColumn.length > 0 && id !== 'lastUpdated') {
                     showStatus = savedColumn[0].show;
                 }
+
+                if( id === 'eventDate' && $scope.selectedProgram && $scope.selectedProgram.isPeriodic ){
+                    showStatus = false;
+                }
                 return showStatus;
             }
+
+            $scope.getCategoryOptions();
         }
+    };
+    
+    $scope.registrationReady = function(){
+        if( $scope.selectedProgram && $scope.selectedProgram.isPeriodic){
+            return $scope.optionsReady && $scope.model.selectedPeriod;
+        }
+        return $scope.optionsReady;
     };
     
     function loadOptions(){
@@ -508,11 +534,33 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
         }
     };
         
+    $scope.updateRegisteredDiseaseList = function( ev, op ){
+        if( $scope.diseaseDataElement ){
+            if( op === 'ADD' ){
+                $scope.registeredDiseaseList.push( ev[$scope.diseaseDataElement.id] );
+            }
+            else {
+                
+                var continueLoop = true, index = -1;
+                for(var i=0; i< $scope.registeredDiseaseList.length && continueLoop; i++){
+                    if($scope.registeredDiseaseList[i] === ev[$scope.diseaseDataElement.id] ){
+                        continueLoop = false;
+                        index = i;
+                    }
+                }
+                if( index !== -1 ){
+                    $scope.registeredDiseaseList.splice(index,1);
+                }
+            }
+        }
+    };
+        
     //get events for the selected program (and org unit)
     $scope.loadEvents = function(){
         resetView();
         $scope.noteExists = false;                
         $scope.eventFetched = true;
+        $scope.registeredDiseaseList = [];
         
         $scope.attributeCategoryUrl = {cc: $scope.selectedProgram.categoryCombo.id, default: $scope.selectedProgram.categoryCombo.isDefault, cp: ""};
         if(!$scope.selectedProgram.categoryCombo.isDefault){            
@@ -559,6 +607,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                             }
                             $scope.formatEventFromGrid( ev );
                             _dhis2Events.push( ev );
+                            $scope.updateRegisteredDiseaseList(angular.copy(ev), 'ADD');
                         });                                        
 
                         $scope.fileNames = CurrentSelection.getFileNames();
@@ -814,6 +863,11 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
             $scope.eventUID = dhis2.util.uid();
             $scope.currentEvent['uid'] = $scope.eventUID;
         }        
+        
+        if($scope.selectedProgram.isPeriodic && $scope.model.selectedPeriod){
+            $scope.currentEvent.eventDate = $scope.model.selectedPeriod.startDate;
+        }
+        
         $scope.currentEventOriginialValue = angular.copy($scope.currentEvent); 
         
         if($scope.eventRegistration){
@@ -1066,6 +1120,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                     //add the new event to the grid                
                     newEvent.event = data.response.importSummaries[0].reference; 
                     $scope.currentEvent.event = newEvent.event;
+                    $scope.updateRegisteredDiseaseList(newEvent, 'ADD');
 
                     $scope.updateFileNames();
 
@@ -1175,6 +1230,8 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                 $scope.outerForm.submitted = false;            
                 $scope.editingEventInFull = false;
                 //$scope.currentEvent = {};
+                $scope.updateRegisteredDiseaseList($scope.currentEventOriginialValue, 'REMOVE');
+                $scope.updateRegisteredDiseaseList($scope.currentEvent, 'ADD');
                 $scope.currentEventOriginialValue = angular.copy($scope.currentEvent);                
                 if( !angular.equals($scope.selectedOptionsOriginal, $scope.selectedOptions) ){
                     $scope.loadEvents();
@@ -1274,6 +1331,8 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
 
             DHIS2EventFactory.updateForSingleValue(updatedSingleValueEvent, updatedFullValueEvent).then(function(data){
                 
+                $scope.updateRegisteredDiseaseList($scope.currentEvent, 'ADD');
+                $scope.updateRegisteredDiseaseList($scope.currentEventOriginialValue, 'REMOVE');
                 //reflect the new value in the grid
                 $scope.dhis2Events = DHIS2EventService.refreshList($scope.dhis2Events, $scope.currentEvent);
                 
@@ -1306,6 +1365,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
             
             DHIS2EventFactory.delete(dhis2Event).then(function(data){
 
+                $scope.updateRegisteredDiseaseList($scope.currentEvent, 'REMOVE');
                 $scope.currentFileNames = {};
                 delete $scope.fileNames[$scope.currentEvent.event];
                 var continueLoop = true, index = -1;
