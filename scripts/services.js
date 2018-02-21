@@ -138,8 +138,29 @@ var eventCaptureServices = angular.module('eventCaptureServices', ['ngResource']
 })
 
 /* Fetch periods */
-.service('PeriodService', function(CalendarService, DateUtils){
+.service('PeriodService', function($filter, CalendarService, DateUtils){
     
+    var getIsoCalendarDate = function( localeDate ){
+
+        var calendarSetting = CalendarService.getSetting();
+            
+        var year = parseInt($filter('date')(localeDate, 'yyyy'));
+        var month = parseInt($filter('date')(localeDate, 'M'));
+        var day = parseInt($filter('date')(localeDate, 'd'));
+
+        var localCalendar = $.calendars.instance(calendarSetting.keyCalendar);        
+        var jd = parseFloat(localCalendar.newDate(year, month, day).toJD());
+
+        var gregorianCalendar = $.calendars.instance('gregorian');
+        var gregordianDate = gregorianCalendar.fromJD(jd);
+
+        var gy = gregordianDate.formatYear();
+        var gm = parseInt(gregordianDate.month()) < 10 ? '0' + gregordianDate.month() : gregordianDate.month();
+        var gd = parseInt(gregordianDate.day()) < 10 ? '0' + gregordianDate.day() : gregordianDate.day();
+        return gy + "-" + gm + "-" + gd;
+    };
+
+
     var mappedMonthNames = {
 		ethiopian: ['Meskerem', 'Tikemet', 'Hidar', 'Tahesas', 'Tir', 'Yekatit', 'Megabit', 'Miazia', 'Genbot', 'Sene', 'Hamle', 'Nehase'],
 		gregorian: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -171,44 +192,27 @@ var eventCaptureServices = angular.module('eventCaptureServices', ['ngResource']
         
         var today = moment(DateUtils.getToday(),'YYYY-MM-DD');
         
-        if( opts.dataSetType === 'Plan_Setting' ) {
-        	angular.forEach(d2Periods, function(p){
-	            p.id = p.iso;
-	            var st = p.endDate.split('-');
-	            st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
-	            if( st[1] < 10 ){
-	                st[1] = '0' + st[1];
-	            }
-	            p.endDate = st.join('-');
-	            
-	            st = p.startDate.split('-');
-	            st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
-	            if( st[1] < 10 ){
-	                st[1] = '0' + st[1];
-	            }
-	            p.startDate = st.join('-');
-	        });
-        }
-        else {
-        	d2Periods = d2Periods.filter(function(p) {
-                p.id = p.iso;
-                var st = p.endDate.split('-');
-                st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
-                if( st[1] < 10 ){
-                    st[1] = '0' + st[1];
-                }
-                p.endDate = st.join('-');
-                
-                st = p.startDate.split('-');
-                st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
-                if( st[1] < 10 ){
-                    st[1] = '0' + st[1];
-                }
-                p.startDate = st.join('-');
-                
-                return today.diff(p.endDate, 'days') >= -9;
-            });        	
-        }        
+        d2Periods = d2Periods.filter(function(p) {                
+            p.id = p.iso;
+            var st = p.endDate.split('-');
+            st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
+            if( st[1] < 10 ){
+                st[1] = '0' + st[1];
+            }
+            p.endDate = st.join('-');
+            
+            st = p.startDate.split('-');
+            st[1] = mappedMonthNames[calendarSetting.keyCalendar].indexOf( st[1] ) + 1;
+            if( st[1] < 10 ){
+                st[1] = '0' + st[1];
+            }
+            p.startDate = st.join('-');
+
+            p.isoStartDate = getIsoCalendarDate(p.startDate);
+            p.isoEndDate = getIsoCalendarDate(p.endDate);
+            
+            return today.diff(p.endDate, 'days') >= -9;
+        });        
         
         return d2Periods;
     };

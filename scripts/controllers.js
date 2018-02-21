@@ -37,6 +37,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                 OptionSetService) {
     
     $scope.maxOptionSize = 100;
+    $scope.periodOffset = 0;
     $scope.treeLoaded = false;    
     $scope.selectedSection = {id: 'ALL'};    
     $rootScope.ruleeffects = {};
@@ -51,7 +52,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
     function resetView(){
         $scope.eventRegistration = false;
         $scope.editingEventInFull = false;
-        $scope.editingEventInGrid = false;        
+        $scope.editingEventInGrid = false;
     }
     
     resetView();
@@ -99,14 +100,6 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                     $scope.model.editingDisabled = orgUnitFromStore.closedStatus;
                 }
             });
-
-            var opts = {
-                periodType: 'Monthly',
-                periodOffset: 0,
-                futurePeriods: 0
-            };
-            
-            $scope.periods = PeriodService.getPeriods( opts );
 
             $scope.pleaseSelectLabel = $translate.instant('please_select');
             $scope.registeringUnitLabel = $translate.instant('registering_unit');
@@ -192,6 +185,19 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                     $scope.getProgramDetails( $scope.selectedProgram );
                 }
             });
+        }
+    };
+
+    $scope.getPeriods = function(mode){
+        if( $scope.selectedProgram && $scope.selectedProgram.periodType )
+        {
+            $scope.model.selectedPeriod = null;        
+            var opts = {
+                periodType: $scope.selectedProgram.periodType,
+                periodOffset: mode === 'NXT' ? ++$scope.periodOffset: --$scope.periodOffset,
+                futurePeriods: 0
+            };        
+            $scope.periods = PeriodService.getPeriods( opts );
         }
     };
 
@@ -356,8 +362,17 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                 $scope.selectedProgram.programStages[0] && 
                 $scope.selectedProgram.programStages[0].id){ 
                 
-            //because this is single event, take the first program stage
+            //If configured period, get period type
+            if( $scope.selectedProgram.periodType ){
+                var opts = {
+                    periodType: $scope.selectedProgram.periodType,
+                    periodOffset: $scope.periodOffset,
+                    futurePeriods: 0
+                };
+                $scope.periods = PeriodService.getPeriods( opts ); 
+            }
 
+            //because this is single event, take the first program stage
             $scope.selectedProgramStage = $scope.selectedProgram.programStages[0];
             $scope.currentStage = $scope.selectedProgramStage;
 
@@ -477,7 +492,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                     showStatus = savedColumn[0].show;
                 }
 
-                if( id === 'eventDate' && $scope.selectedProgram && $scope.selectedProgram.isPeriodic ){
+                if( id === 'eventDate' && $scope.selectedProgram && $scope.selectedProgram.periodType ){
                     showStatus = false;
                 }
                 return showStatus;
@@ -488,7 +503,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
     };
     
     $scope.registrationReady = function(){
-        if( $scope.selectedProgram && $scope.selectedProgram.isPeriodic){
+        if( $scope.selectedProgram && $scope.selectedProgram.periodType){
             return $scope.optionsReady && $scope.model.selectedPeriod;
         }
         return $scope.optionsReady;
@@ -574,6 +589,16 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                 return;
             }            
             $scope.attributeCategoryUrl.cp = $scope.selectedOptions.join(';');
+        }
+
+        if( $scope.selectedProgram && $scope.selectedProgram.periodType && !$scope.model.selectedPeriod ){
+            var dialogOptions = {
+                headerText: 'error',
+                bodyText: 'please_selected_period'
+            };
+
+            DialogService.showDialog({}, dialogOptions);
+            return;
         }
                
         if( $scope.selectedProgram && $scope.selectedProgramStage && $scope.selectedProgramStage.id){
@@ -864,7 +889,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
             $scope.currentEvent['uid'] = $scope.eventUID;
         }        
         
-        if($scope.selectedProgram.isPeriodic && $scope.model.selectedPeriod){
+        if($scope.selectedProgram.periodType && $scope.model.selectedPeriod){
             $scope.currentEvent.eventDate = $scope.model.selectedPeriod.startDate;
         }
         
@@ -1691,6 +1716,18 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
         else{
             //enable ou selection if not in editing mode
             $( "#orgUnitTree" ).removeClass( "disable-clicks" );
+        }
+    });
+
+    $scope.$watch('model.selectedPeriod', function(){        
+        $scope.filterParam = '';
+        if( !$scope.model.selectedPeriod ){            
+            $scope.dhis2Events = null;
+        }
+        else{
+            $scope.filterParam += '&startDate=' + $scope.model.selectedPeriod.isoStartDate;
+            $scope.filterParam += '&endDate=' + $scope.model.selectedPeriod.isoEndDate;
+            $scope.getCategoryOptions();
         }
     });
     

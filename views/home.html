@@ -40,23 +40,19 @@
         <div class="row selectionGroup">
             <div class="col-sm-6 selectionArea">
                 <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         {{registeringUnitLabel}}
                     </div>
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         <input type="text" class="form-control" selected-org-unit ng-model="selectedOrgUnit.displayName" value="{{selectedOrgUnit.displayName|| pleaseSelectLabel}}" disabled="">
                     </div>
                 </div>
                 <div class="row small-vertical-spacing">
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         {{programLabel}}
                     </div>
-                    <div class="col-sm-8">
-                        <ui-select ng-model="selectedProgram" 
-                            on-select="getProgramDetails( selectedProgram )"    
-                            ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid"
-                            theme="select2" 
-                            style="width:100%;">
+                    <div class="col-sm-9">
+                        <ui-select ng-model="selectedProgram" on-select="getProgramDetails( selectedProgram )" ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid" theme="select2" style="width:100%;">
                             <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{programs && programs.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
                             <ui-select-choices repeat="program in programs | filter: $select.search | limitTo:maxOptionSize">
                                 <span ng-bind-html="program.displayName | highlight: $select.search"></span>
@@ -64,32 +60,39 @@
                         </ui-select>
                     </div>
                 </div>
-                <div class="row small-vertical-spacing" ng-if="selectedProgram && selectedProgram.isPeriodic">
-                    <div class="col-sm-4">
+                <div class="row small-vertical-spacing" ng-if="selectedProgram && selectedProgram.periodType">
+                    <div class="col-sm-3">
                         {{periodLabel}}
                     </div>
-                    <div class="col-sm-8">
-                        <ui-select ng-model="model.selectedPeriod" 
-                            ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid"
-                            theme="select2" 
-                            style="width:100%;">
-                            <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{periods && periods.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.name|| $select.selected}}</ui-select-match>
-                            <ui-select-choices repeat="period in periods | filter: $select.search | limitTo:maxOptionSize">
-                                <span ng-bind-html="period.name | highlight: $select.search"></span>
-                            </ui-select-choices>
-                        </ui-select>
+                    <div class="col-sm-9">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <ui-select ng-model="model.selectedPeriod" ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid" theme="select2" style="width:100%;">
+                                    <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{periods && periods.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.name|| $select.selected}}</ui-select-match>
+                                    <ui-select-choices repeat="period in periods | filter: $select.search | limitTo:maxOptionSize">
+                                        <span ng-bind-html="period.name | highlight: $select.search"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-default" ng-click="getPeriods('PRV')" title="{{'previous_periods'| translate}}">
+                                        {{'previous_periods' | translate}}
+                                    </button>
+                                    <button type="button" class="btn btn-default" ng-disabled="periodOffset > -1" ng-click="getPeriods('NXT')" title="{{'next_periods'| translate}}">
+                                        {{'next_periods' | translate}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="row small-vertical-spacing" ng-if="selectedProgram" ng-repeat="category in selectedCategories">
-                    <div class="col-sm-4">
+                <div class="row small-vertical-spacing" ng-if="selectedProgram && (!selectedProgram.periodType || selectedProgram.periodType && model.selectedPeriod)" ng-repeat="category in selectedCategories">
+                    <div class="col-sm-3">
                         {{category.displayName}}
                     </div>
-                    <div class="col-sm-8">
-                        <ui-select ng-model="category.selectedOption" 
-                            ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid"                        
-                            theme="select2" 
-                            on-select="getCategoryOptions()" 
-                            style="width:100%;">
+                    <div class="col-sm-9">
+                        <ui-select ng-model="category.selectedOption" ng-disabled="eventRegistration || editingEventInFull || editingEventInGrid" theme="select2" on-select="getCategoryOptions()" style="width:100%;">
                             <ui-select-match allow-clear="true" class="form-control-ui-select" placeholder="{{category.categoryOptions && category.categoryOptions.length > 0 ? 'select_or_search' : 'empty'| translate}}">{{$select.selected.displayName|| $select.selected}}</ui-select-match>
                             <ui-select-choices repeat="option in category.categoryOptions | filter: $select.search | limitTo:maxOptionSize">
                                 <span ng-bind-html="option.displayName | highlight: $select.search"></span>
@@ -98,10 +101,10 @@
                     </div>
                 </div>
                 <div class="row small-vertical-spacing" ng-if="selectedProgramStage && selectedProgramStage.programStageSections.length  && eventRegistration || editingEventInFull">
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         {{'section'| translate}}
                     </div>
-                    <div class="col-sm-8">
+                    <div class="col-sm-9">
                         <select class="form-control" name="section" ng-model="selectedSection.id">
                             <option value="ALL">{{'show_all'| translate}}</option>
                             <option ng-if="!hiddenSections[section.id]" ng-repeat="section in selectedProgramStage.programStageSections" value={{section.id}}>{{section.displayName}}</option>
