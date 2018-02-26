@@ -863,7 +863,10 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
     };
     
     $scope.showEventList = function(dhis2Event){
-        
+        if( $scope.eventRegistration || $scope.editingEventInFull || $scope.editingEventInGrid ){
+            return;
+        }
+
         ContextMenuSelectedItem.setSelectedItem(dhis2Event);
         resetView();
         $scope.currentElement.updated = false;

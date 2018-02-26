@@ -5,6 +5,7 @@
                         theme="select2" 
                         ng-required={{eventGridColumn.compulsory}}
                         name="foo" 
+                        tabindex={{$index}} d2-tab-index 
                         input-field-id={{eventGridColumn.id}} 
                         ng-disabled="assignedFields[eventGridColumn.id] || model.editingDisabled"
                         on-select="saveDatavalue()"
@@ -18,6 +19,7 @@
         <div ng-if="prStDes[eventGridColumn.id].renderOptionsAsRadio && optionSets[prStDes[eventGridColumn.id].dataElement.optionSet.id].options.length < 7">
             <d2-radio id="eventGridColumn.id" 
                 d2-name="foo" 
+                tabindex={{$index}} d2-tab-index 
                 d2-object="currentEvent" 
                 d2-options="optionSets[prStDes[eventGridColumn.id].dataElement.optionSet.id].options"
                 d2-required="eventGridColumn.compulsory"
@@ -28,6 +30,7 @@
     <div ng-if="!prStDes[eventGridColumn.id].dataElement.optionSetValue" ng-switch="eventGridColumn.valueType">
         <div ng-switch-when="NUMBER">
             <input type="number"
+                    tabindex={{$index}} d2-tab-index 
                     d2-number-validator
                     number-type={{eventGridColumn.valueType}}
                     ng-model="currentEvent[eventGridColumn.id]"                                        
@@ -40,6 +43,7 @@
         </div>
         <div ng-switch-when="PERCENTAGE">
             <input type="number"
+                    tabindex={{$index}} d2-tab-index 
                     d2-number-validator
                     number-type={{eventGridColumn.valueType}}
                     ng-model="currentEvent[eventGridColumn.id]"
@@ -52,6 +56,7 @@
         </div>
         <div ng-switch-when="INTEGER">
             <input type="number"
+                    tabindex={{$index}} d2-tab-index 
                     d2-number-validator
                     number-type={{eventGridColumn.valueType}}
                     ng-model="currentEvent[eventGridColumn.id]"                                        
@@ -64,6 +69,7 @@
         </div>
         <div ng-switch-when="INTEGER_POSITIVE">
             <input type="number"
+                    tabindex={{$index}} d2-tab-index 
                     d2-number-validator
                     number-type={{eventGridColumn.valueType}}
                     ng-model="currentEvent[eventGridColumn.id]"                                        
@@ -76,6 +82,7 @@
         </div>
         <div ng-switch-when="INTEGER_NEGATIVE">
             <input type="number"
+                    tabindex={{$index}} d2-tab-index 
                     d2-number-validator
                     number-type={{eventGridColumn.valueType}}
                     ng-model="currentEvent[eventGridColumn.id]"                                        
@@ -88,6 +95,7 @@
         </div>
         <div ng-switch-when="INTEGER_ZERO_OR_POSITIVE">
             <input type="number"
+                    tabindex={{$index}} d2-tab-index 
                     d2-number-validator
                     number-type={{eventGridColumn.valueType}}
                     ng-model="currentEvent[eventGridColumn.id]"                                        
@@ -100,6 +108,7 @@
         </div>
         <div ng-switch-when="AGE">
             <d2-age id="{{eventGridColumn.id}}" 
+                    tabindex={{$index}} d2-tab-index 
                     d2-object="currentEvent" 
                     d2-required="eventGridColumn.compulsory"
                     d2-disabled="assignedFields[eventGridColumn.id] || model.editingDisabled">                                                    
@@ -107,6 +116,7 @@
         </div>
         <div ng-switch-when="PHONE_NUMBER">
             <input type="text"
+                    tabindex={{$index}} d2-tab-index 
                     ng-model="currentEvent[eventGridColumn.id]"                                        
                     ng-required={{eventGridColumn.compulsory}}
                     ng-disabled="assignedFields[eventGridColumn.id] || model.editingDisabled"
@@ -117,6 +127,7 @@
         </div>
         <div ng-switch-when="TEXT">
             <input type="text"
+                    tabindex={{$index}} d2-tab-index 
                     ng-model="currentEvent[eventGridColumn.id]"                                        
                     ng-required={{eventGridColumn.compulsory}}
                     ng-disabled="assignedFields[eventGridColumn.id] || model.editingDisabled"
@@ -127,6 +138,7 @@
         </div>
         <div ng-switch-when="LONG_TEXT">
             <textarea rows="3"
+                    tabindex={{$index}} d2-tab-index 
                     ng-model="currentEvent[eventGridColumn.id]"                                        
                     ng-required={{eventGridColumn.compulsory}}
                     ng-disabled="assignedFields[eventGridColumn.id] || model.editingDisabled"
@@ -139,6 +151,7 @@
         <div ng-switch-when="BOOLEAN">
             <div class="form-control hideInPrint">
                 <d2-radio-button
+                    tabindex={{$index}} d2-tab-index 
                     dh-required="eventGridColumn.compulsory"
                     dh-disabled="assignedFields[eventGridColumn.id] || model.editingDisabled"
                     dh-value="currentEvent[eventGridColumn.id]"
@@ -155,6 +168,7 @@
         </div>
         <div ng-switch-when="DATE">
             <input type="text"
+                    tabindex={{$index}} d2-tab-index 
                     placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
                     d2-date
                     max-date="prStDes[eventGridColumn.id].allowFutureDate ? '' : 0"                                        
@@ -169,6 +183,7 @@
         </div>
         <div ng-switch-when="DATETIME">
             <input type="text"
+                    tabindex={{$index}} d2-tab-index 
                     placeholder="{{dhis2CalendarFormat.keyDateFormat}}"
                     d2-date
                     max-date="prStDes[eventGridColumn.id].allowFutureDate ? '' : 0"
@@ -181,6 +196,7 @@
         </div>
         <div ng-switch-when="TRUE_ONLY">
             <input type="checkbox"
+                    tabindex={{$index}} d2-tab-index 
                     ng-model="currentEvent[eventGridColumn.id]"                                                               
                     ng-required={{eventGridColumn.compulsory}}
                     ng-disabled="assignedFields[eventGridColumn.id] || model.editingDisabled"
@@ -207,6 +223,7 @@
                         <span title="{{'upload' | translate}}">
                             <i class="fa fa-upload"></i>
                             <input type="file" 
+                                    tabindex={{$index}} d2-tab-index 
                                     ng-required={{eventGridColumn.compulsory}}
                                     ng-disabled="assignedFields[eventGridColumn.id] || model.editingDisabled"
                                     name="foo"
@@ -225,6 +242,7 @@
         </div>
         <div ng-switch-when="COORDINATE">
             <d2-map id="{{eventGridColumn.id}}" 
+                    tabindex={{$index}} d2-tab-index 
                     d2-object="currentEvent" 
                     d2-required="eventGridColumn.compulsory"
                     d2-disabled="assignedFields[eventGridColumn.id] || model.editingDisabled"
@@ -233,6 +251,7 @@
         </div>
         <div ng-switch-when="ORGANISATION_UNIT">
             <d2-org-unit-tree
+                    tabindex={{$index}} d2-tab-index 
                     selected-org-unit-id="{{selectedOrgUnit.id}}"
                     id="{{eventGridColumn.id}}"
                     d2-value="currentEvent[eventGridColumn.id]"
@@ -245,6 +264,7 @@
         </div>
         <div ng-switch-when="EMAIL">
             <input type="email"
+                    tabindex={{$index}} d2-tab-index 
                     name="foo"
                     class="form-control"
                     ng-model="currentEvent[eventGridColumn.id]"
@@ -257,6 +277,7 @@
         <div ng-switch-when="URL">
             <div class="hideInPrint">
                 <input type="url"
+                        tabindex={{$index}} d2-tab-index 
                         d2-url-validator
                         placeholder="{{'url_format' | translate}}"
                         class="form-control"
