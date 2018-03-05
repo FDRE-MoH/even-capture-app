@@ -862,11 +862,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
         }
     };
     
-    $scope.showEventList = function(dhis2Event){
-        if( $scope.eventRegistration || $scope.editingEventInFull || $scope.editingEventInGrid ){
-            return;
-        }
-
+    $scope.showEventList = function(dhis2Event){        
         ContextMenuSelectedItem.setSelectedItem(dhis2Event);
         resetView();
         $scope.currentElement.updated = false;
@@ -1728,8 +1724,8 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
             $scope.dhis2Events = null;
         }
         else{
-            $scope.filterParam += '&startDate=' + $scope.model.selectedPeriod.isoStartDate;
-            $scope.filterParam += '&endDate=' + $scope.model.selectedPeriod.isoEndDate;
+            $scope.filterParam += '&startDate=' + $scope.model.selectedPeriod.startDate;
+            $scope.filterParam += '&endDate=' + $scope.model.selectedPeriod.endDate;
             $scope.getCategoryOptions();
         }
     });
