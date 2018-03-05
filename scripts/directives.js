@@ -20,9 +20,8 @@ var eventCaptureDirectives = angular.module('eventCaptureDirectives', [])
 .directive('d2TabIndex', function(){
     return{
         restrict: 'A',
-        link: function (scope, element, attrs) {
-            
-            element.bind("onclick", function(event){
+        link: function (scope, element, attrs) {            
+            element.bind("click", function(event){
                 if(this.type==="number"){
                     this.select();
                 }
