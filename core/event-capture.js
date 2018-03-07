@@ -291,8 +291,8 @@ function getPrograms( programs, ids )
     
     _.each( _.values( batches ), function ( batch ) {        
         promise = getBatchPrograms( programs, batch );
-        promise = promise.then( getMetaProgramIndicators );
-        promise = promise.then( getProgramIndicators );
+        //promise = promise.then( getMetaProgramIndicators );
+        //promise = promise.then( getProgramIndicators );
         promise = promise.then( getMetaProgramRules );
         promise = promise.then( getProgramRules );
         promise = promise.then( getMetaProgramRuleVariables );
