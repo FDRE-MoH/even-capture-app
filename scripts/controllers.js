@@ -1080,6 +1080,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
             }        
 
             $scope.model.savingRegistration = true;
+            $scope.model.editingDisabled = true;
 
             var newEvent = angular.copy($scope.currentEvent);        
 
@@ -1138,6 +1139,8 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                     };
 
                     DialogService.showDialog({}, dialogOptions);
+                    $scope.model.savingRegistration = false;
+                    $scope.model.editingDisabled = false;
                 }
                 else {
 
@@ -1177,6 +1180,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
                     }
                 }
                 $scope.model.savingRegistration = false;
+                $scope.model.editingDisabled = false;
             });
         });
     };

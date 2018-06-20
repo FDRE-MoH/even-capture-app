@@ -53,8 +53,8 @@
                     <label class="btn btn-default" ng-if="editingEventInGrid" ng-click="showEventList()" title="{{'close_editing'| translate}}">
                         <i class="fa fa-times-circle label-font"></i>
                     </label>
-                    <label class="btn btn-success" ng-if="eventRegistration" ng-click="addEvent()" title="{{'save'| translate}}">
-                        <i class="fa fa-floppy-o label-font"></i>
+                    <label class="btn btn-success" ng-if="eventRegistration" ng-click="addEvent()" ng-disabled="model.savingRegistration" title="{{'save'| translate}}">                        
+                        <i ng-class="{true: 'fa fa-floppy-o label-font', false: 'fa fa-spinner fa-pulse'} [!model.savingRegistration]"></i>
                     </label>
                 </span>
             </div>
