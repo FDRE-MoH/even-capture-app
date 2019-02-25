@@ -111,6 +111,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
             $scope.searchOusLabel = $translate.instant('locate_organisation_unit_by_name');
             $scope.yesLabel = $translate.instant('yes');
             $scope.noLabel = $translate.instant('no');
+            $scope.model.selectedPeriod = null;
 
             SessionStorageService.set('SELECTED_OU', $scope.selectedOrgUnit);
 
@@ -168,6 +169,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
         $scope.fileNames = {};        
         $scope.currentFileNames = {};
         $scope.orgUnitNames = {};
+        $scope.model.selectedPeriod = null;
 
         resetView();
         $scope.editGridColumns = false;
@@ -191,7 +193,7 @@ var eventCaptureControllers = angular.module('eventCaptureControllers', ['ngCsv'
     $scope.getPeriods = function(mode){
         if( $scope.selectedProgram && $scope.selectedProgram.periodType )
         {
-            $scope.model.selectedPeriod = null;        
+            $scope.model.selectedPeriod = null;
             var opts = {
                 periodType: $scope.selectedProgram.periodType,
                 periodOffset: mode === 'NXT' ? ++$scope.periodOffset: --$scope.periodOffset,
